@@ -57,21 +57,17 @@ frames = lapply(senate,function(x){
 })
 frame = do.call(rbind,frames)
 
-features = read.csv("stored_data/midi_features.csv",stringsAsFactors=FALSE)
+frame2013 = sorted_vec(frame[frame$congress==113,])
 
-midi_feats = read.csv("stored_data/generated_midi_features.csv",stringsAsFactors=FALSE)
+frame2013$name = gsub(" ","",as.character(lapply(strsplit(rownames(frame2013),"\\("),function(x) x[1])))
+frame2013$party = as.character(lapply(strsplit(rownames(frame2013),"\\("),function(x) strsplit(x[2],"-")[[1]][1]))
+frame2013$state = gsub("\\)","",as.character(lapply(strsplit(rownames(frame2013),"\\("),function(x) strsplit(x[2],"-")[[1]][2])))
 
-bad_feats = c("fs","enc","fname")
-non_predictors = c("label","fs","enc","fname","label_code")
+non_predictors = c("name","party","state")
 
-names(features)[(ncol(features)-4):ncol(features)] = non_predictors
+features = frame2013
 
-names(midi_feats)[(ncol(midi_feats)-1):ncol(midi_feats)] = c("label_code","label")
-features = features[,!names(features) %in% bad_feats]
-features = do.call(rbind,list(features,midi_feats))
-
-features$label_code = as.numeric(as.factor(features$label))
-feature_names = names(features)[!names(features) %in% c(non_predictors,"X")]
+feature_names = names(features)[!names(features) %in% c(non_predictors)]
 
 for(f in feature_names){
   features[,f] = as.numeric(features[,f])
@@ -84,7 +80,10 @@ scaled_data = apply(scaled_data,2,function(x) {
 })
 svd_train<-svd(scaled_data,2)$u
 
-newtrain<-data.frame(x=svd_train[,1],y=svd_train[,2],label_code=features$label_code,label=features$label)
+newtrain<-data.frame(x=svd_train[,1],y=svd_train[,2],label_code=as.numeric(as.factor(features$party)),label=features$party,state=features$state,name=features$name,full_name=rownames(features),stringsAsFactors=FALSE)
+distances = rowMeans(as.matrix(dist(newtrain[,c("x","y")],method="euclidean")))
+newtrain = data.frame(newtrain,distances=distances,stringsAsFactors=FALSE)
+interesting_senators = c("Chiesa (R-NJ)","Markey (D-MA)","Kerry (D-MA)","Cowan (D-MA)", "Lautenberg (D-NJ)","McCain (R-AZ)", "Rubio (R-FL)","Cruz (R-TX)","Scott (R-SC)","Roberts (R-KS)", "Inhofe (R-OK)","Barrasso (R-WY)", "Johnson (R-WI)", "Reid (D-NV)", "Durbin (D-IL)", "Schumer (D-NY)", "McConnell (R-KY)", "Cornyn (R-TX)", "Thune (R-SD)")
 
 #model = svm(score ~ x + y, data = newtrain)
 #plot(model,newtrain)
@@ -103,7 +102,7 @@ svd_train <- svd_train[svd_train$X1<mean(svd_train$X1)+1.4*sd(svd_train$X1) & sv
 svd_train <- svd_train[svd_train$X2<mean(svd_train$X2)+1.4*sd(svd_train$X2) & svd_train$X2>mean(svd_train$X2)-1.4*sd(svd_train$X2),]
 
 p <- ggplot(newtrain, aes(x, y))
-p = p + geom_point(aes(colour =label_code)) + scale_size_area(max_size=20)
+p = p + geom_point(aes(colour =label_code)) + scale_size_area(max_size=20) + geom_text(data = newtrain[newtrain$full_name %in% interesting_senators,], aes(x+.2,y, label = full_name), hjust = 2)
 p = p +   theme(axis.line = element_blank(),
                 panel.grid.major = element_blank(),
                 panel.grid.minor = element_blank(),
@@ -115,3 +114,6 @@ p = p +   theme(axis.line = element_blank(),
                 axis.text.y = element_blank()) 
 p = p +labs(colour="Type of Music")
 p
+
+
+
