@@ -83,7 +83,7 @@ svd_train<-svd(scaled_data,2)$u
 newtrain<-data.frame(x=svd_train[,1],y=svd_train[,2],label_code=as.numeric(as.factor(features$party)),label=features$party,state=features$state,name=features$name,full_name=rownames(features),stringsAsFactors=FALSE)
 distances = rowMeans(as.matrix(dist(newtrain[,c("x","y")],method="euclidean")))
 newtrain = data.frame(newtrain,distances=distances,stringsAsFactors=FALSE)
-interesting_senators = c("Chiesa (R-NJ)","Markey (D-MA)","Kerry (D-MA)","Cowan (D-MA)", "Lautenberg (D-NJ)","McCain (R-AZ)", "Rubio (R-FL)","Cruz (R-TX)","Scott (R-SC)","Roberts (R-KS)", "Inhofe (R-OK)","Barrasso (R-WY)", "Johnson (R-WI)", "Reid (D-NV)", "Durbin (D-IL)", "Schumer (D-NY)", "McConnell (R-KY)", "Cornyn (R-TX)", "Thune (R-SD)")
+interesting_senators = c("Chiesa (R-NJ)","Markey (D-MA)","Kerry (D-MA)","Cowan (D-MA)", "Lautenberg (D-NJ)","McCain (R-AZ)", "Rubio (R-FL)","Cruz (R-TX)","Scott (R-SC)","Roberts (R-KS)", "Inhofe (R-OK)","Barrasso (R-WY)", "Johnson (R-WI)", "Reid (D-NV)", "Durbin (D-IL)", "Schumer (D-NY)", "McConnell (R-KY)", "Cornyn (R-TX)", "Thune (R-SD)", "Murkowski (R-AK)", "Collins (R-ME)", "Manchin (D-WV)", "Pryor (D-AR)", "King (I-ME)", "Sanders (I-VT)")
 
 #model = svm(score ~ x + y, data = newtrain)
 #plot(model,newtrain)
@@ -102,7 +102,7 @@ svd_train <- svd_train[svd_train$X1<mean(svd_train$X1)+1.4*sd(svd_train$X1) & sv
 svd_train <- svd_train[svd_train$X2<mean(svd_train$X2)+1.4*sd(svd_train$X2) & svd_train$X2>mean(svd_train$X2)-1.4*sd(svd_train$X2),]
 
 p <- ggplot(newtrain, aes(x, y))
-p = p + geom_point(aes(colour =label_code)) + scale_size_area(max_size=20) + geom_text(data = newtrain[newtrain$full_name %in% interesting_senators,], aes(x+.2,y, label = full_name), hjust = 2)
+p = p + geom_point(aes(colour =label_code-1, size=10)) + scale_colour_gradient(low = "darkblue", high="red") + scale_size_area(max_size=7) + geom_text(data = newtrain[newtrain$full_name %in% interesting_senators,], aes(x+.2,y, label = full_name), hjust = 2)
 p = p +   theme(axis.line = element_blank(),
                 panel.grid.major = element_blank(),
                 panel.grid.minor = element_blank(),
@@ -117,3 +117,34 @@ p
 
 
 
+unique_congress = sorted(unique(frame$congress))
+polarization = list()
+for(c in unique_congress){
+  frame2013 = sorted_vec(frame[frame$congress==c,])
+  
+  frame2013$name = gsub(" ","",as.character(lapply(strsplit(rownames(frame2013),"\\("),function(x) x[1])))
+  frame2013$party = as.character(lapply(strsplit(rownames(frame2013),"\\("),function(x) strsplit(x[2],"-")[[1]][1]))
+  frame2013$state = gsub("\\)","",as.character(lapply(strsplit(rownames(frame2013),"\\("),function(x) strsplit(x[2],"-")[[1]][2])))
+  features = frame2013
+  
+  feature_names = names(features)[!names(features) %in% c(non_predictors)]
+  
+  for(f in feature_names){
+    features[,f] = as.numeric(features[,f])
+  }
+  
+  scaled_data = scale(features[,feature_names])
+  scaled_data = apply(scaled_data,2,function(x) {
+    x[is.na(x)] = -1
+    x
+  })
+  svd_train<-svd(scaled_data,2)$u
+  
+  newtrain<-data.frame(x=svd_train[,1],y=svd_train[,2],label_code=as.numeric(as.factor(features$party)),label=features$party,state=features$state,name=features$name,full_name=rownames(features),stringsAsFactors=FALSE)
+  distances = rowMeans(as.matrix(dist(newtrain[,c("x","y")],method="euclidean")))
+  party_distances = tapply(distances,newtrain$label,mean)
+  dist_frame = data.frame(D=party_distances['D'],R=party_distances['R'],I=party_distances['I'],congress=c)
+  polarization[[length(polarization)+1]] = dist_frame
+}
+
+dists = do.call(rbind,polarization)
