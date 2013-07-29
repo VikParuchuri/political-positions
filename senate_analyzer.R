@@ -116,35 +116,38 @@ p = p +labs(colour="Type of Music")
 p
 
 
-
-unique_congress = sorted(unique(frame$congress))
+unique_congress = sort(unique(frame$congress))
 polarization = list()
 for(c in unique_congress){
-  frame2013 = sorted_vec(frame[frame$congress==c,])
-  
-  frame2013$name = gsub(" ","",as.character(lapply(strsplit(rownames(frame2013),"\\("),function(x) x[1])))
-  frame2013$party = as.character(lapply(strsplit(rownames(frame2013),"\\("),function(x) strsplit(x[2],"-")[[1]][1]))
-  frame2013$state = gsub("\\)","",as.character(lapply(strsplit(rownames(frame2013),"\\("),function(x) strsplit(x[2],"-")[[1]][2])))
-  features = frame2013
-  
-  feature_names = names(features)[!names(features) %in% c(non_predictors)]
-  
-  for(f in feature_names){
-    features[,f] = as.numeric(features[,f])
+  sframe = frame[frame$congress==c,]
+  if(sum(is.na(sframe))==0){
+    
+    frame2013 = sorted_vec(sframe)
+    
+    frame2013$name = gsub(" ","",as.character(lapply(strsplit(rownames(frame2013),"\\("),function(x) x[1])))
+    frame2013$party = as.character(lapply(strsplit(rownames(frame2013),"\\("),function(x) strsplit(x[2],"-")[[1]][1]))
+    frame2013$state = gsub("\\)","",as.character(lapply(strsplit(rownames(frame2013),"\\("),function(x) strsplit(x[2],"-")[[1]][2])))
+    features = frame2013
+    
+    feature_names = names(features)[!names(features) %in% c(non_predictors)]
+    
+    for(f in feature_names){
+      features[,f] = as.numeric(features[,f])
+    }
+    
+    scaled_data = scale(features[,feature_names])
+    scaled_data = apply(scaled_data,2,function(x) {
+      x[is.na(x)] = -1
+      x
+    })
+    svd_train<-svd(scaled_data,2)$u
+    
+    newtrain<-data.frame(x=svd_train[,1],y=svd_train[,2],label_code=as.numeric(as.factor(features$party)),label=features$party,state=features$state,name=features$name,full_name=rownames(features),stringsAsFactors=FALSE)
+    distances = rowMeans(as.matrix(dist(newtrain[,c("x","y")],method="euclidean")))
+    party_distances = tapply(distances,newtrain$label,mean)
+    dist_frame = data.frame(D=party_distances['D'],R=party_distances['R'],I=party_distances['I'],congress=c)
+    polarization[[length(polarization)+1]] = dist_frame
   }
-  
-  scaled_data = scale(features[,feature_names])
-  scaled_data = apply(scaled_data,2,function(x) {
-    x[is.na(x)] = -1
-    x
-  })
-  svd_train<-svd(scaled_data,2)$u
-  
-  newtrain<-data.frame(x=svd_train[,1],y=svd_train[,2],label_code=as.numeric(as.factor(features$party)),label=features$party,state=features$state,name=features$name,full_name=rownames(features),stringsAsFactors=FALSE)
-  distances = rowMeans(as.matrix(dist(newtrain[,c("x","y")],method="euclidean")))
-  party_distances = tapply(distances,newtrain$label,mean)
-  dist_frame = data.frame(D=party_distances['D'],R=party_distances['R'],I=party_distances['I'],congress=c)
-  polarization[[length(polarization)+1]] = dist_frame
 }
 
 dists = do.call(rbind,polarization)

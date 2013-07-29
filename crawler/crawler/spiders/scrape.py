@@ -48,7 +48,7 @@ class SenateSpider(CrawlSpider):
         congress = re.search('\d+',url).group(0)
         session = re.search("=(\d)&",url).group(1)
         name = content[3]
-        number = content[4]
+        number = re.search("=(\d+)",url).group(1)
         time = content[5]
         description = content[9]
         yes_count = content[11]
