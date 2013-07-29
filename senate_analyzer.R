@@ -150,9 +150,25 @@ for(c in unique_congress){
     party_distances = tapply(distances,newtrain$label,mean)
     dem_distances = tapply(dem_distances,newtrain$label,mean)
     rep_distances = tapply(rep_distances,newtrain$label,mean)
-    dist_frame = data.frame(D=party_distances['D'],R=party_distances['R'],I=party_distances['I'],congress=c,DP=rep_distances['D'],RP=dem_distances['R'])
+    party_counts = tapply(newtrain$label,newtrain$label,length)
+    dist_frame = data.frame(D=party_distances['D'],R=party_distances['R'],I=party_distances['I'],congress=c,DP=rep_distances['D'],RP=dem_distances['R'],DC=party_counts['D'],RC=party_counts['R'],IC=party_counts['I'])
     polarization[[length(polarization)+1]] = dist_frame
   }
 }
 
 dists = do.call(rbind,polarization)
+dfm <- melt(dists[,c("congress","D","R")], id.var = c("congress"))
+ddf = melt(dists[,c("congress","D","R","DC","RC")], id.var = c("congress"))
+ddf = data.frame(dists,variable=dists$congress)
+p <- ggplot(dfm, aes(congress, value, group = variable, colour = variable))
+p = p + geom_line() + scale_x_continuous(labels = dists$congress,breaks = dists$congress)
+p = p +   theme(axis.line = element_blank(),
+                panel.grid.major = element_blank(),
+                panel.grid.minor = element_blank(),
+                panel.border = element_blank(),
+                axis.title.x = element_blank(),
+                axis.title.y = element_blank()) 
+#p = p + geom_text(data = ddf, aes(congress,D, label = DC, hjust = 2))
+#p = p + geom_text(data = dists, aes(congress,R, label = RC, hjust = 2))
+p
+
