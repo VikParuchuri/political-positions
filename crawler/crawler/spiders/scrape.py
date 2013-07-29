@@ -45,10 +45,10 @@ class SenateSpider(CrawlSpider):
         url = response.url
         x = HtmlXPathSelector(response)
         content = x.select('//tr/td[@class="contenttext"]/text()').extract()
-        congress = re.search('\d+',url).group(0)
-        session = re.search("=(\d)&",url).group(1)
+        congress = re.findall("\d+",url)[0]
+        session = re.findall("\d+",url)[1]
         name = content[3]
-        number = re.search("=(\d+)",url).group(1)
+        number = re.findall("\d+",url)[2]
         time = content[5]
         description = content[9]
         yes_count = content[11]

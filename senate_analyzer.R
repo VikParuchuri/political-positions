@@ -143,9 +143,14 @@ for(c in unique_congress){
     svd_train<-svd(scaled_data,2)$u
     
     newtrain<-data.frame(x=svd_train[,1],y=svd_train[,2],label_code=as.numeric(as.factor(features$party)),label=features$party,state=features$state,name=features$name,full_name=rownames(features),stringsAsFactors=FALSE)
-    distances = rowMeans(as.matrix(dist(newtrain[,c("x","y")],method="euclidean")))
+    dist_mat = as.matrix(dist(newtrain[,c("x","y")],method="euclidean"))
+    dem_distances = apply(dist_mat,1,function(x) mean(x[features$party=="D"]))
+    rep_distances = apply(dist_mat,1,function(x) mean(x[features$party=="R"]))
+    distances = rowMeans(dist_mat)
     party_distances = tapply(distances,newtrain$label,mean)
-    dist_frame = data.frame(D=party_distances['D'],R=party_distances['R'],I=party_distances['I'],congress=c)
+    dem_distances = tapply(dem_distances,newtrain$label,mean)
+    rep_distances = tapply(rep_distances,newtrain$label,mean)
+    dist_frame = data.frame(D=party_distances['D'],R=party_distances['R'],I=party_distances['I'],congress=c,DP=rep_distances['D'],RP=dem_distances['R'])
     polarization[[length(polarization)+1]] = dist_frame
   }
 }
