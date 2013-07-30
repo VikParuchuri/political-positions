@@ -15,7 +15,10 @@
    width="937.5"
    height="1105"
    xml:space="preserve"
-   sodipodi:docname="senate.svg"><metadata
+   sodipodi:docname="senate.svg"
+   inkscape:export-filename="/home/vik/vikparuchuri/political-positions/senate.png"
+   inkscape:export-xdpi="93.333336"
+   inkscape:export-ydpi="93.333336"><metadata
      id="metadata15851"><rdf:RDF><cc:Work
          rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
@@ -38,7 +41,7 @@
      showgrid="false"
      inkscape:zoom="0.85429864"
      inkscape:cx="509.90378"
-     inkscape:cy="639.35426"
+     inkscape:cy="545.7102"
      inkscape:window-x="65"
      inkscape:window-y="24"
      inkscape:window-maximized="1"
@@ -970,4 +973,14 @@
            style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Lobster 1.4';-inkscape-font-specification:'Lobster 1.4 Bold'"
            id="flowSpan16876"><flowSpan
              style="font-size:20px"
-             id="flowSpan16878">Originally posted on vikparuchuri.com </flowSpan></flowSpan></flowPara></flowRoot></g></svg>
+             id="flowSpan16878">Originally posted on vikparuchuri.com </flowSpan></flowSpan></flowPara></flowRoot><flowRoot
+       xml:space="preserve"
+       id="flowRoot18824"
+       style="fill:black;stroke:none;stroke-opacity:1;stroke-width:1px;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:1;font-family:Simpsonfont;font-style:normal;font-weight:bold;font-size:40px;line-height:125%;letter-spacing:0px;word-spacing:0px;-inkscape-font-specification:Simpsonfont Bold;font-stretch:normal;font-variant:normal"><flowRegion
+         id="flowRegion18826"><rect
+           id="rect18828"
+           width="131.1017"
+           height="47.992584"
+           x="35.116524"
+           y="533.77118" /></flowRegion><flowPara
+         id="flowPara18830"></flowPara></flowRoot></g></svg>
