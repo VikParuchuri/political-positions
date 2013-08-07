@@ -73,9 +73,11 @@ for(f in feature_names){
   features[,f] = as.numeric(features[,f])
 }
 
+features = features[apply(features[,feature_names],1,function(x) length(x[x==3])<10),]
+
 scaled_data = scale(features[,feature_names])
 scaled_data = apply(scaled_data,2,function(x) {
-  x[is.na(x)] = -1
+  x[is.na(x)] = 2
   x
 })
 svd_train<-svd(scaled_data,2)$u
