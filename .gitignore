@@ -44,3 +44,6 @@ stored_data
 data
 percept/docs/_build
 
+# R
+*.Rhistory
+
