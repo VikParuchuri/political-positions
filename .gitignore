@@ -45,5 +45,6 @@ data
 percept/docs/_build
 
 # R
-*.Rhistory
+.Rhistory
+.Rapp.history
 
