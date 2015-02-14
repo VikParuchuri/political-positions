@@ -48,3 +48,5 @@ percept/docs/_build
 .Rhistory
 .Rapp.history
 
+.DS_Store
+
