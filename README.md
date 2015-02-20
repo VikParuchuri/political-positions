@@ -32,6 +32,8 @@ scrapy crawl senate -o ../data/senate.json -t json
 
 This will crawl the senate website and download voting data on senators.
 
+Open and run the code in the `make_matrix.py` file to generate a csv from the json file.  
+
 Then, you can open the `senate_analyzer.R` script and run it to produce charts.
 
 How to Contribute
